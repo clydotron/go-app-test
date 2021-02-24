@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+
+.btnx {
+    @apply inline-block px-5 py-2 bg-indigo-500 focus:outline-none focus:ring-offset-2 focus:ring-opacity-50 focus:ring-indigo-500 focus:ring hover:bg-indigo-400 hover:-translate-y-0.5 transform transition text-white rounded-lg shadow-lg uppercase tracking-wider font-semibold sm:mt-6
+}
+
+@tailwind utilities;
