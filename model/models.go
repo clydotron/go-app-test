@@ -1,6 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+)
+
+type Observer interface {
+	Updated(i interface{})
+	GetID() string
+}
 
 // TaskInfo ...
 type TaskInfo struct {
@@ -9,6 +16,38 @@ type TaskInfo struct {
 	Updated     time.Time
 	State       string
 	ContainerID string
+
+	observers []Observer //trying out two different ways, pick one (eventually)
+	uc        chan<- bool
+}
+
+// SetChannel
+func (ti *TaskInfo) SetChannel(ch chan<- bool) {
+	ti.uc = ch
+}
+
+func (ti *TaskInfo) AddObserver(o Observer) {
+	ti.observers = append(ti.observers, o)
+}
+
+func (ti *TaskInfo) RemoveObserver(o Observer) {
+
+	for i, oo := range ti.observers {
+		if o.GetID() == oo.GetID() {
+			ti.observers = append(ti.observers[:i], ti.observers[i+1:]...)
+		}
+	}
+}
+
+func (ti *TaskInfo) NotifyAll() {
+	//fmt.Println("NotifyAll")
+	for _, o := range ti.observers {
+		o.Updated(ti)
+	}
+
+	if ti.uc != nil {
+		ti.uc <- true
+	}
 }
 
 //@todo how to do an enum in

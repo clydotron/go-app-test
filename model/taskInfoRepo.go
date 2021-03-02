@@ -19,9 +19,9 @@ func NewTaskInfoRepo() *TaskInfoRepo {
 
 	// add some fake data:
 	repo.taskmap["1"] = TaskInfo{
-		Name:        "Mystery",
+		Name:        "MysteryMachine",
 		Tag:         "0.0.1",
-		State:       "running",
+		State:       "idle",
 		ContainerID: "deadbeef007",
 		Updated:     time.Now(),
 	}
@@ -36,6 +36,16 @@ func (r *TaskInfoRepo) GetTaskInfo(id string) (*TaskInfo, error) {
 		return nil, errors.New("Not found")
 	}
 
+	//fmt.Println("Repo: id:", id, ti)
+	// set a timer to update the task info
+	timer3 := time.NewTimer(3 * time.Second)
+	go func() {
+		<-timer3.C
+		//fmt.Println("timer!")
+		ti.State = "stopped"
+		ti.NotifyAll()
+	}()
+
 	return &ti, nil
 }
 
@@ -49,3 +59,5 @@ func (r *TaskInfoRepo) GetTaskInfoX(id string, cb func(*TaskInfo, error)) {
 
 	cb(&ti, nil) //go?
 }
+
+// what about the situation where the task info is updated?

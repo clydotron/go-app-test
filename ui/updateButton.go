@@ -30,13 +30,12 @@ func (c *UpdateButton) Render() app.UI {
 		h = ""
 	}
 	// make conditional in class?
-	return app.Div().
-		Class("bg-blue-100" + h).
+	return app.Div().Class(h).
 		Body(
 			//Displays an Update button when an update is available.
 			app.If(c.UpdateAvailable,
 				app.Button().
-					Class("bg-indigo-300 rounded p-3").
+					Class("bg-indigo-300 rounded p-4").
 					Text("Update!").
 					OnClick(c.onUpdateClick),
 			),

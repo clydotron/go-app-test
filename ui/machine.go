@@ -64,17 +64,17 @@ func (c *Machine) OnMount(ctx app.Context) {
 			c.updateStatus()
 		}()
 
-		timer3 := time.NewTimer(4 * time.Second)
-		go func() {
-			<-timer3.C
-			c.addTask()
-		}()
+		// timer3 := time.NewTimer(4 * time.Second)
+		// go func() {
+		// 	<-timer3.C
+		// 	c.addTask()
+		// }()
 
-		timer4 := time.NewTimer(6 * time.Second)
-		go func() {
-			<-timer4.C
-			c.removeTask()
-		}()
+		// timer4 := time.NewTimer(6 * time.Second)
+		// go func() {
+		// 	<-timer4.C
+		// 	c.removeTask()
+		// }()
 
 		// start a ticker:
 		c.ticker = time.NewTicker(2000 * time.Millisecond)
