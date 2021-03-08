@@ -19,8 +19,8 @@ func NewTaskInfoRepo() *TaskInfoRepo {
 
 	// add some fake data:
 	repo.taskmap["1"] = TaskInfo{
-		Name:        "MysteryMachine",
-		Tag:         "0.0.1",
+		Name:        "Redis",
+		Tag:         "3.2.1",
 		State:       "idle",
 		ContainerID: "deadbeef007",
 		Updated:     time.Now(),

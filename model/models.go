@@ -60,3 +60,26 @@ type MachineInfo struct {
 	Memory int32
 	Tasks  []TaskInfo
 }
+
+// Events ...
+type EventInfo struct {
+	Name      string
+	ID        string
+	Paylod    interface{}
+	TimeStamp time.Time
+}
+
+type ControlPlaneInfo struct {
+	Name   string
+	Status string
+}
+
+type WorkerNodeInfo struct {
+	Name   string
+	Status string
+}
+
+type ClusterInfo struct {
+	ControlPlanes map[string]ControlPlaneInfo
+	WorkerNodes   map[string]WorkerNodeInfo
+}

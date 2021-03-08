@@ -42,10 +42,10 @@ func (c *Machines) Render() app.UI {
 	return app.Div().Class("h-screen w-screen").
 		Body(
 			&ui.NavBar{},
-			app.Div().Class("h-screen w-screen bg-purple-100 p-8 flex flex-col").
+			app.Div().Class("h-screen w-screen bg-purple-100 pt-20 p-8 flex flex-col").
 				Body(
 					app.Range(c.MI).Slice(func(i int) app.UI {
-						return app.Ul().Class("w-48 h-full bg-blue-600").
+						return app.Ul().Class("w-48 h-full bg-gray-300").
 							Body(
 								&ui.Machine{MI: c.MI[i]},
 							)

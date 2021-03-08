@@ -35,7 +35,7 @@ func (c *UpdateButton) Render() app.UI {
 			//Displays an Update button when an update is available.
 			app.If(c.UpdateAvailable,
 				app.Button().
-					Class("bg-indigo-300 rounded p-4").
+					Class("bg-indigo-300 rounded p-2 m-2").
 					Text("Update!").
 					OnClick(c.onUpdateClick),
 			),

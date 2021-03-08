@@ -7,10 +7,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/clydotron/go-app-test/client"
+	models "github.com/clydotron/go-app-test/model"
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
 )
 
@@ -19,18 +22,38 @@ func lager(format string, v ...interface{}) {
 
 }
 
-// type DataStore struct {
-// 	MI []models.MachineInfo
-// 	MV *views.Machines
-// }
+type ClientX struct {
+	cc *client.ClusterClient
+	ct *models.ClusterTracker
+}
 
-// func (d *DataStore) update(mi []models.MachineInfo) {
-// 	d.MI = mi
-// 	d.MV.UpdateM(&mi)
-// }
+func setupResponse(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+}
 
-// // DS ...
-// var DS *DataStore
+// apiCluster -- this is called on its own go routine, so we can block
+func (cx *ClientX) apiCluster(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("api request: cluster")
+
+	setupResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
+		return
+	}
+
+	if (*r).Method != "GET" {
+		fmt.Println("Incorrect method:", (*r).Method)
+		return
+	}
+	//make sure this is a get
+	//get the latest cluster info from the store and json it...
+
+	cx.ct.UpdateStatus()
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(cx.ct.CI)
+}
 
 // The main function is the entry of the server. It is where the HTTP handler
 // that serves the UI is defined and where the server is started.
@@ -40,42 +63,28 @@ func lager(format string, v ...interface{}) {
 // app.go.
 func main() {
 
-	// mi := []models.MachineInfo{
-	// 	models.MachineInfo{
-	// 		Name: "Machine 1",
-	// 		Role: "Manager",
-	// 		Tasks: []models.TaskInfo{
-	// 			models.TaskInfo{
-	// 				Name:        "Redis",
-	// 				Tag:         "3.2.1",
-	// 				ContainerID: "bunch of hex",
-	// 				State:       "running",
-	// 				Updated:     time.Now(),
-	// 			},
-	// 		},
-	// 	},
-	// }
+	// could move all of this into init
+	client := client.NewClusterClient()
+	err := client.Connect("localhost:50051")
+	if err != nil {
+		log.Fatalln("### Client failed to connect:", err)
+	}
+	defer client.Close()
 
-	// DS := &DataStore{
-	// 	MV: &views.Machines{MI: mi},
-	// 	MI: mi,
-	// }
-	// fmt.Println(DS)
+	clusterTracker := models.NewClusterTracker(client)
+	clusterTracker.InitWithFakeData()
+	clusterTracker.Start()
+	defer clusterTracker.Stop()
 
-	/*
-	   	ticker := time.NewTicker(500 * time.Millisecond)
-	       done := make(chan bool)
-	       go func() {
-	           for {
-	               select {
-	               case <-done:
-	                   return
-	               case t := <-ticker.C:
-	                   fmt.Println("Tick at", t)
-	               }
-	           }
-	       }()
-	*/
+	cx := &ClientX{
+		cc: client,
+		ct: clusterTracker,
+	}
+	// sequence of events:
+	// create client (gRPC connection to server)
+	// create the cluster tracker - responsible for making the HealthCheck gRPC call and [optionally] maintaining a snaphot of the cluster (so can diff)
+	// ClientX(Api) - implements the http.HandleFunc call to respond to api requests
+
 	// app.Handler is a standard HTTP handler that serves the UI and its
 	// resources to make it work in a web browser.
 	//
@@ -83,11 +92,13 @@ func main() {
 	// with the Go HTTP standard library.
 	http.Handle("/", &app.Handler{
 		Name:        "Hello",
-		Description: "An Hello World! example",
+		Description: "Experimental",
 		Styles: []string{
 			"/web/tailwind.css", // Inlude .css file.
 		},
 	})
+
+	http.HandleFunc("/api/v1/cluster", cx.apiCluster)
 
 	//http.Handle("/beer")
 	//infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
@@ -95,7 +106,7 @@ func main() {
 
 	fmt.Println("up and running...")
 
-	err := http.ListenAndServe(":8000", nil)
+	err = http.ListenAndServe(":8000", nil)
 	if err != nil {
 		log.Fatal(err)
 	}

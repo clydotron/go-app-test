@@ -13,17 +13,21 @@ type NavBar struct {
 
 // Render ...
 func (c *NavBar) Render() app.UI {
-	return app.Nav().Class("bg-purple-200").
+	return app.Nav().Class("bg-purple-200 fixed w-screen").
 		Body(
-			app.Div().Class("px-8 mx-auto").
+			app.Div().Class("px-6 mx-auto flex justify-between").
 				Body(
 					app.Div().Class("flex space-x-2").
 						Body(
 							app.A().Class("py-5 px-3 text-gray-700").Href("/clusters").Text("Clusters"),
-							app.A().Class("py-5 px-3 text-gray-700").Href("/nodes").Text("Nodes"),
+							//app.A().Class("py-5 px-3 text-gray-700").Href("/nodes").Text("Nodes"),
 							app.A().Class("py-5 px-3 text-gray-700").Href("/machines").Text("Machines"),
-							app.A().Class("py-5 px-3 text-gray-700").Href("/images").Text("Images"),
-							&c.upx,
+							//app.A().Class("py-5 px-3 text-gray-700").Href("/images").Text("Images"),
+							app.A().Class("py-5 px-3 text-gray-700").Href("/events").Text("Events"),
+						),
+					app.Div().Class("flex items-center space-x-1").
+						Body(
+							&c.upx, //right justify this
 						),
 				),
 		)

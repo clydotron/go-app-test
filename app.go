@@ -11,6 +11,7 @@ import (
 
 	models "github.com/clydotron/go-app-test/model"
 	"github.com/clydotron/go-app-test/ui"
+	"github.com/clydotron/go-app-test/utils"
 	"github.com/clydotron/go-app-test/views"
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
 )
@@ -30,6 +31,22 @@ func (d *DataStore) update(mi []models.MachineInfo) {
 func main() {
 	//app.Log("setting up routes")
 
+	// client := client.NewClusterClient()
+	// err := client.Connect("0.0.0.0:50051")
+	// if err != nil {
+	// 	log.Fatalln("### Client failed to connect:", err)
+	// }
+	// defer client.Close()
+
+	eventBus := utils.NewEventBus()
+	eventSource := models.NewEventSource(eventBus)
+	eventSource.Start()
+
+	// clusterTracker := models.NewClusterTracker(client)
+	// clusterTracker.InitWithFakeData()
+	// //clusterTracker.Start()
+	// defer clusterTracker.Stop()
+
 	taskRepo := models.NewTaskInfoRepo()
 
 	mi := []models.MachineInfo{
@@ -41,7 +58,7 @@ func main() {
 				models.TaskInfo{
 					Name:        "Redis",
 					Tag:         "3.2.1",
-					ContainerID: "bunch of hex",
+					ContainerID: "deadbeef007",
 					State:       "running",
 					Updated:     time.Now(),
 				},
@@ -58,7 +75,9 @@ func main() {
 
 	app.Route("/", &ui.Updater{}) // hello component is associated with URL path "/".
 	app.Route("/workcation", &workcation{})
+	app.Route("/clusters", views.NewClustersView(eventBus))
 	app.Route("/machines", DS.MV)
+	app.Route("/events", views.NewEventsView(eventBus))
 	app.RouteWithRegexp("^/node.*", &ui.Node{})
 	app.RouteWithRegexp("^/task.*", ui.NewTaskDetail(taskRepo))
 

@@ -95,15 +95,17 @@ func (c *TaskDetail) EventHandlerX(ctx app.Context, e app.Event) {
 func (c *TaskDetail) Render() app.UI {
 
 	return app.Div().
-		Class("bg-green-100").
+		Class("bg-gray-100").
 		Body(
 			&NavBar{},
-			app.H1().Text("Name: "+c.TI.Name),
-			app.H3().Text("Tag: "+c.TI.Tag),
-			app.H3().Text("State: "+c.TI.State),
-			app.H3().Text("ContainerID: "+c.TI.ContainerID),
-			app.Br(),
-			app.A().Href(app.Window().Get("document").Get("referrer").String()).OnClick(c.EventHandlerX).Text("Back"),
+			app.Div().Class("pt-20 px-2").Body(
+				app.H1().Text("Name: "+c.TI.Name),
+				app.H3().Text("Tag: "+c.TI.Tag),
+				app.H3().Text("State: "+c.TI.State),
+				app.H3().Text("ContainerID: "+c.TI.ContainerID),
+				app.Br(),
+				app.A().Href(app.Window().Get("document").Get("referrer").String()).OnClick(c.EventHandlerX).Text("Back"),
+			),
 		)
 }
 

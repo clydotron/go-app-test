@@ -4,3 +4,6 @@ build:
 
 run: build
 	./go-app-test
+
+test:
+	go test
