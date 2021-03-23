@@ -120,7 +120,7 @@ func (ct *ClusterTracker) UpdateStatus() {
 		// handle the actual result:
 		d := msg.GetMetadata()
 		x := msg.GetMessage()
-		fmt.Println("msg: meta", d, "msg:", x)
+		//fmt.Println("msg: meta", d, "msg:", x)
 
 		// check to see if this is a control plane... if so, update
 		if cp, ok := ct.CI.ControlPlanes[d.Hostname]; ok {

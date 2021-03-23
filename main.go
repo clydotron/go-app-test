@@ -94,15 +94,11 @@ func main() {
 		Name:        "Hello",
 		Description: "Experimental",
 		Styles: []string{
-			"/web/tailwind.css", // Inlude .css file.
+			"/web/tailwind.css", "/web/test.css", // Include .css file.
 		},
 	})
 
 	http.HandleFunc("/api/v1/cluster", cx.apiCluster)
-
-	//http.Handle("/beer")
-	//infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	//app.DefaultLogger = lager
 
 	fmt.Println("up and running...")
 

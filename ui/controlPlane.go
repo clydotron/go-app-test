@@ -1,10 +1,15 @@
 package ui
 
-import "github.com/maxence-charriere/go-app/v7/pkg/app"
+import (
+	models "github.com/clydotron/go-app-test/model"
+	"github.com/maxence-charriere/go-app/v7/pkg/app"
+)
 
 // ControlPlane ...
 type ControlPlane struct {
 	app.Compo
+
+	CPI models.ControlPlaneInfo
 }
 
 // Render ...
