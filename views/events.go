@@ -3,7 +3,7 @@ package views
 import (
 	"fmt"
 
-	models "github.com/clydotron/go-app-test/model"
+	"github.com/clydotron/go-app-test/models"
 	"github.com/clydotron/go-app-test/ui"
 	"github.com/clydotron/go-app-test/utils"
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
@@ -17,24 +17,27 @@ type Events struct {
 	eb     *utils.EventBus
 	dataCh utils.DataChannel
 	doneCh chan bool
+	topic  string
 }
 
 //constructor?
 
 func NewEventsView(eb *utils.EventBus) *Events {
 	e := &Events{
-		eb: eb,
-		//doneCh: make(chan bool),
-		//dataCh: make(chan utils.DataEvent),
+		eb:     eb,
+		doneCh: make(chan bool),
+		dataCh: make(chan utils.DataEvent),
+		topic:  "event",
 	}
 	return e
 }
 
 func (c *Events) handleEvent(d utils.DataEvent) {
-	if d.Topic == "event" {
+	if d.Topic == c.topic {
 		app.Dispatch(func() {
 			ei, ok := d.Data.(*models.EventInfo)
 			if ok {
+				fmt.Println("Events.handleEvent:", ei.ID)
 				c.events = append(c.events, *ei)
 				c.Update()
 			}
@@ -46,35 +49,28 @@ func (c *Events) OnMount(ctx app.Context) {
 	fmt.Println("Events onMount >start<")
 	defer fmt.Println("Events onMount >end<")
 
-	// need a way to get all of the events up until now
-	//c.events = append([]models.EventInfo{},c.)
-	//don't recreate these...
-	if c.dataCh == nil {
-		fmt.Println("Events: initializing")
-		c.doneCh = make(chan bool)
-		c.dataCh = make(chan utils.DataEvent)
-		c.eb.Subscribe("event", c.dataCh)
+	// need a way to get all of the events up until now?
 
-		go func() {
-			for {
-				select {
-				case d := <-c.dataCh:
-					c.handleEvent(d)
-				case <-c.doneCh:
-					fmt.Println("all done!")
-					return
-				}
+	c.eb.Subscribe(c.topic, c.dataCh)
+
+	go func() {
+		for {
+			select {
+			case d := <-c.dataCh:
+				c.handleEvent(d)
+			case <-c.doneCh:
+				fmt.Println("Events: done.")
+				return
 			}
-		}()
-	}
+		}
+	}()
+
 }
-func (c *Events) OnDismount(ctx app.Context) {
-	fmt.Println("Events dismounted")
+func (c *Events) OnDismount() {
+	defer fmt.Println("Events dismounted")
 
 	c.doneCh <- true
-	c.eb.Unsubscribe("events", c.dataCh)
-
-	//do i need to do anything with the channels?
+	c.eb.Unsubscribe(c.topic, c.dataCh)
 
 }
 

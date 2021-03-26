@@ -22,8 +22,8 @@ func (c *NavBar) Render() app.UI {
 							app.A().Class("py-5 px-3 text-gray-700").Href("/clusters").Text("Clusters"),
 							//app.A().Class("py-5 px-3 text-gray-700").Href("/nodes").Text("Nodes"),
 							app.A().Class("py-5 px-3 text-gray-700").Href("/machines").Text("Machines"),
-							//app.A().Class("py-5 px-3 text-gray-700").Href("/images").Text("Images"),
 							app.A().Class("py-5 px-3 text-gray-700").Href("/events").Text("Events"),
+							app.A().Class("py-5 px-3 text-gray-700").Href("/charts").Text("Charts"),
 						),
 					app.Div().Class("flex items-center space-x-1").
 						Body(

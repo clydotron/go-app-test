@@ -9,7 +9,7 @@ package main
 import (
 	"time"
 
-	models "github.com/clydotron/go-app-test/model"
+	"github.com/clydotron/go-app-test/models"
 	"github.com/clydotron/go-app-test/ui"
 	"github.com/clydotron/go-app-test/utils"
 	"github.com/clydotron/go-app-test/views"
@@ -42,6 +42,11 @@ func main() {
 	eventSource := models.NewEventSource(eventBus)
 	eventSource.Start()
 
+	piSource := models.NewProcessInfoSource(eventBus)
+	piSource.AddProcess(models.ProcessInfo{ID: "P1", Name: "P1", CPU: 10})
+	//piSource.AddProcess(models.ProcessInfo{ID: "P2", Name: "P2", CPU: 10})
+	piSource.Start()
+
 	// clusterTracker := models.NewClusterTracker(client)
 	// clusterTracker.InitWithFakeData()
 	// //clusterTracker.Start()
@@ -58,7 +63,7 @@ func main() {
 				models.TaskInfo{
 					Name:        "Redis",
 					Tag:         "3.2.1",
-					ContainerID: "deadbeef007",
+					ContainerID: "badc0ffee",
 					State:       "running",
 					Updated:     time.Now(),
 				},
@@ -78,6 +83,7 @@ func main() {
 	app.Route("/clusters", views.NewClustersView(eventBus))
 	app.Route("/machines", DS.MV)
 	app.Route("/events", views.NewEventsView(eventBus))
+	app.Route("/charts", views.NewProcessesView(eventBus))
 	app.RouteWithRegexp("^/node.*", &ui.Node{})
 	app.RouteWithRegexp("^/task.*", ui.NewTaskDetail(taskRepo))
 
@@ -107,53 +113,4 @@ func main() {
 }
 
 // return app.Div().OnClick(c.onClick)
-// }
-
-// type imageFrame struct {
-// 	app.Compo
-// 	clicked bool
-// }
-
-// func (ifx *imageFrame) Render() app.UI {
-// 	cvalue := "p-12 "
-// 	if ifx.clicked {
-// 		cvalue += "bg-green-400"
-// 	} else {
-// 		cvalue += "bg-purple-600"
-// 	}
-
-// 	return app.Div().OnClick(ifx.onClick).
-// 		Class(cvalue).
-// 		Body(
-// 			app.H3().Text("ClickMe!x"),
-// 			app.Img().Src("/web/img/logo.svg").Class("p-2").Class("h-12"),
-// 		)
-// }
-
-// // }
-
-// func (c *imageFrame) onClick(ctx app.Context, e app.Event) {
-// 	app.Log("click")
-// 	c.clicked = !c.clicked
-// 	c.Update()
-
-// }
-
-// type testList struct {
-// 	app.Compo
-// }
-
-// func (c *testList) Render() app.UI {
-// 	data := []string{
-// 		"hello",
-// 		"go-app",
-// 		"is",
-// 		"sexy",
-// 	}
-
-// 	return app.Ul().Body(
-// 		app.Range(data).Slice(func(i int) app.UI {
-// 			return app.Li().Text(data[i])
-// 		}),
-// 	)
 // }
