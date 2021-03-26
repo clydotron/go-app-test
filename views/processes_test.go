@@ -20,4 +20,5 @@ func TestHandleEvent(t *testing.T) {
 
 	fmt.Println(v)
 
+	//@todo add actual test
 }

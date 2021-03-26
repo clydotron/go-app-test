@@ -37,8 +37,9 @@ func (c *Processes) handleEvent(d utils.DataEvent) {
 		if pi, ok := d.Data.(*models.ProcessInfo); ok {
 
 			if _, exists := c.pui[pi.ID]; !exists {
-				//fmt.Println("Processes.handleEvent: add:", pi)
+				fmt.Println("Processes.handleEvent: add:", pi)
 				c.pui[pi.ID] = *ui.NewCpuTracker(pi.ID, c.eb)
+				//update the fill color?
 				c.Update()
 			}
 		}
@@ -46,7 +47,7 @@ func (c *Processes) handleEvent(d utils.DataEvent) {
 }
 
 func (c *Processes) OnMount(ctx app.Context) {
-	fmt.Println("Processes onMount >start< processes:", len(c.pui))
+	//fmt.Println("Processes onMount >start< processes:", len(c.pui))
 	defer fmt.Println("Processes onMount >end<")
 
 	c.sub.Start(c.handleEvent)
@@ -54,8 +55,7 @@ func (c *Processes) OnMount(ctx app.Context) {
 
 // OnDismount ...
 func (c *Processes) OnDismount() {
-	defer fmt.Println("Processes dismounted!!!")
-
+	defer fmt.Println("Processes dismounted!")
 	c.sub.Stop()
 }
 
@@ -66,10 +66,13 @@ func (c *Processes) Render() app.UI {
 	return app.Div().Class("h-screen w-screen").
 		Body(
 			&ui.NavBar{},
-			app.Range(c.pui).Map(func(k string) app.UI {
-				v := c.pui[k]
-				return app.Div().Body(&v)
-			}),
+			app.Div().Class("pt-16").Body(
+
+				app.Range(c.pui).Map(func(k string) app.UI {
+					v := c.pui[k]
+					return app.Div().Body(&v)
+				}),
+			),
 		)
 
 }

@@ -92,5 +92,13 @@ type ClusterInfo struct {
 type ProcessInfo struct {
 	Name string
 	ID   string
-	CPU  int
+	CPU  float64
+	//add time stamp
+}
+
+// improve this
+type ProcessInfoCpuHistoryRequest struct {
+	ID       string
+	Num      int
+	Callback func(history []float64)
 }

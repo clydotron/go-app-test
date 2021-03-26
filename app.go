@@ -44,7 +44,8 @@ func main() {
 
 	piSource := models.NewProcessInfoSource(eventBus)
 	piSource.AddProcess(models.ProcessInfo{ID: "P1", Name: "P1", CPU: 10})
-	//piSource.AddProcess(models.ProcessInfo{ID: "P2", Name: "P2", CPU: 10})
+	piSource.AddProcess(models.ProcessInfo{ID: "P2", Name: "P2", CPU: 10})
+	piSource.AddProcess(models.ProcessInfo{ID: "P3", Name: "P3", CPU: 30})
 	piSource.Start()
 
 	// clusterTracker := models.NewClusterTracker(client)

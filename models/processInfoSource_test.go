@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -40,7 +41,10 @@ func TestPiSouceSendUpdate(t *testing.T) {
 			t.Fatal("failed to convert")
 		} else {
 			t.Log("success")
+			fmt.Println(d)
 		}
 	}
 
 }
+
+// add test for requesting historical data
