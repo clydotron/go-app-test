@@ -2,6 +2,7 @@ package views
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/clydotron/go-app-test/models"
 	"github.com/clydotron/go-app-test/ui"
@@ -9,69 +10,64 @@ import (
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
 )
 
+/*
+todos:
+build mechanism to get all events up to ___ (some point) on mount
+if the user hits clear, remember that point for future mounts
+*/
 // Events ...
 type Events struct {
 	app.Compo
-	events []models.EventInfo
-
-	eb     *utils.EventBus
-	dataCh utils.DataChannel
-	doneCh chan bool
-	topic  string
+	events      []models.EventInfo
+	eb          *utils.EventBus
+	sub         *utils.EventBusSubscriber
+	lastEventTS time.Time
 }
 
-//constructor?
-
+// NewEventsView factory function
 func NewEventsView(eb *utils.EventBus) *Events {
 	e := &Events{
-		eb:     eb,
-		doneCh: make(chan bool),
-		dataCh: make(chan utils.DataEvent),
-		topic:  "event",
+		eb:          eb,
+		sub:         utils.NewEventBusSubscriber("event", eb),
+		lastEventTS: time.Now(),
 	}
+	e.sub.Name = "Events"
 	return e
 }
 
 func (c *Events) handleEvent(d utils.DataEvent) {
-	if d.Topic == c.topic {
-		app.Dispatch(func() {
-			ei, ok := d.Data.(*models.EventInfo)
-			if ok {
-				fmt.Println("Events.handleEvent:", ei.ID)
-				c.events = append(c.events, *ei)
-				c.Update()
-			}
-		})
-	}
+
+	app.Dispatch(func() {
+		if ei, ok := d.Data.(*models.EventInfo); ok {
+			c.events = append(c.events, *ei)
+			c.lastEventTS = ei.TimeStamp
+			c.Update()
+		}
+	})
 }
 
 func (c *Events) OnMount(ctx app.Context) {
 	fmt.Println("Events onMount >start<")
 	defer fmt.Println("Events onMount >end<")
 
-	// need a way to get all of the events up until now?
+	// request all events since the last one we received
+	// @todo - for the first one do we want to go back in time? (or just start at the present)
+	ri := &models.EventInfoRequest{
+		StartTime: c.lastEventTS,
+		Callback: func(events []models.EventInfo) {
+			app.Dispatch(func() {
+				c.events = append(c.events, events...)
+				c.Update()
+			})
+		},
+	}
+	c.eb.Publish("event_req", ri)
 
-	c.eb.Subscribe(c.topic, c.dataCh)
-
-	go func() {
-		for {
-			select {
-			case d := <-c.dataCh:
-				c.handleEvent(d)
-			case <-c.doneCh:
-				fmt.Println("Events: done.")
-				return
-			}
-		}
-	}()
-
+	c.sub.Start(c.handleEvent)
 }
+
 func (c *Events) OnDismount() {
-	defer fmt.Println("Events dismounted")
-
-	c.doneCh <- true
-	c.eb.Unsubscribe(c.topic, c.dataCh)
-
+	c.sub.Stop()
 }
 
 func (c *Events) clearEvents(ctx app.Context, e app.Event) {
@@ -84,6 +80,8 @@ func (c *Events) clearEvents(ctx app.Context, e app.Event) {
 // Render ...
 func (c *Events) Render() app.UI {
 
+	// @otodo make something in the event info clickable to bring up detailed view
+	// make event info component?
 	return app.Div().Class("h-screen w-screen").
 		Body(
 			&ui.NavBar{},
@@ -116,30 +114,3 @@ func (c *Events) Render() app.UI {
 				),
 		)
 }
-
-/*
-<div class="flex flex-col">
-  <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-      <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Title
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
-              </th>
-              <th scope="col" class="relative px-6 py-3">
-                <span class="sr-only">Edit</span>
-              </th>
-            </tr>
-          </thead>
-*/

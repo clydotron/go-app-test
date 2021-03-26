@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -17,6 +18,7 @@ type EventBus struct {
 	m           sync.RWMutex
 }
 
+// NewEventBus
 func NewEventBus() *EventBus {
 	e := &EventBus{
 		subscribers: map[string]DataChannelSlice{},
@@ -37,7 +39,7 @@ func (eb *EventBus) Subscribe(topic string, ch DataChannel) {
 	}
 }
 
-// Unsubscribe ...
+// Unsubscribe from a given topic
 func (eb *EventBus) Unsubscribe(topic string, ch DataChannel) {
 
 	eb.m.Lock()
@@ -50,6 +52,8 @@ func (eb *EventBus) Unsubscribe(topic string, ch DataChannel) {
 				return
 			}
 		}
+	} else {
+		fmt.Println("Subscriber not found:", topic, ch)
 	}
 }
 
@@ -67,8 +71,5 @@ func (eb *EventBus) Publish(topic string, data interface{}) {
 				ch <- d
 			}
 		}(DataEvent{Topic: topic, Data: data}, subscribers)
-	} //else {
-	//	fmt.Println("No subscribers for:", topic, "found.")
-	//}
-
+	}
 }

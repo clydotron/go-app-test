@@ -69,6 +69,11 @@ type EventInfo struct {
 	TimeStamp time.Time
 }
 
+type EventInfoRequest struct {
+	StartTime time.Time
+	Callback  func(events []EventInfo)
+}
+
 type ControlPlaneInfo struct {
 	Name   string
 	Status string

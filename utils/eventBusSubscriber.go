@@ -1,10 +1,13 @@
 package utils
 
+import "fmt"
+
 type EventBusSubscriber struct {
 	topic  string
 	eb     *EventBus
 	dataCh DataChannel
 	doneCh chan bool
+	Name   string //for debugging
 }
 
 func NewEventBusSubscriber(topic string, eb *EventBus) *EventBusSubscriber {
@@ -28,7 +31,9 @@ func (s *EventBusSubscriber) Start(fcn func(d DataEvent)) {
 				//@todo confirm the topics match? (should be safe)
 				fcn(d)
 			case <-s.doneCh:
-				//fmt.Println("Processes: all done!")
+				if s.Name != "" {
+					fmt.Println(s.Name, ": done.")
+				}
 				return
 			}
 		}
