@@ -44,6 +44,7 @@ func TestEventBusSubscriber(t *testing.T) {
 
 	select {
 	case <-timeout:
+		// expected (can we shorten the timeout?)
 		//t.Fatal("did not finish in time")
 	case d := <-dataCh:
 		if d.Topic != topic {

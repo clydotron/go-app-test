@@ -15,22 +15,22 @@ import (
 type Clusters struct {
 	app.Compo
 
-	eb     *utils.EventBus
-	dataCh utils.DataChannel
-	doneCh chan bool
-	view   string
+	sub  *utils.EventBusSubscriber
+	eb   *utils.EventBus
+	view string
 
 	ci *models.ClusterInfo
 }
 
 func NewClustersView(eb *utils.EventBus) *Clusters {
 	e := &Clusters{
-		eb: eb,
-		//doneCh: make(chan bool),
-		//dataCh: make(chan utils.DataEvent),
+		eb:   eb,
+		sub:  utils.NewEventBusSubscriber("cluster", eb),
+		view: "planes",
 	}
 	return e
 }
+
 func (c *Clusters) handleEvent(d utils.DataEvent) {
 	// ?
 }
@@ -50,7 +50,7 @@ func (c *Clusters) OnNav(ctx app.Context, u *url.URL) {
 		c.view = "undefined"
 	}
 
-	c.updateClusterInfo()
+	go c.updateClusterInfo()
 }
 
 // pass the view thru here? (to make sure it is updated at the correct thread/safe time?)
@@ -78,35 +78,15 @@ func (c *Clusters) updateClusterInfo() {
 
 func (c *Clusters) OnMount(ctx app.Context) {
 
-	// need a way to get all of the events up until now
-	//c.events = append([]models.EventInfo{},c.)
-	//don't recreate these...
-	if c.dataCh == nil {
-		c.doneCh = make(chan bool)
-		c.dataCh = make(chan utils.DataEvent)
-		c.eb.Subscribe("cluster", c.dataCh)
+	// need a way to get relevant information up to this point:
 
-		go func() {
-			for {
-				select {
-				case d := <-c.dataCh:
-					c.handleEvent(d)
-				case <-c.doneCh:
-					fmt.Println("Cluster: all done!")
-					return
-				}
-			}
-		}()
-	}
+	c.sub.Start(c.handleEvent)
 }
+
 func (c *Clusters) OnDismount() {
 	defer fmt.Println("Clusters dismounted")
 
-	c.doneCh <- true
-	c.eb.Unsubscribe("cluster", c.dataCh)
-
-	//do i need to do anything with the channels?
-
+	c.sub.Stop()
 }
 
 // here is the question: is it better to have
@@ -117,8 +97,6 @@ func (c *Clusters) renderDetailView() app.UI {
 	if c.ci == nil {
 		return nil
 	}
-
-	// header?
 
 	// make the number of columns
 	return app.Div().Class("bg-gray-100 w-full h-full p-4 grid grid-cols-4 gap-2").
@@ -141,7 +119,6 @@ func (c *Clusters) renderDetailView() app.UI {
 					),
 				),
 		)
-
 }
 
 //border-l-4 border-blue-dark
@@ -158,7 +135,7 @@ func (c *Clusters) Render() app.UI {
 
 	return app.Div().Class("h-screen w-screen bg-gray-darker").Body(
 		&ui.NavBar{},
-		app.Div().Class("pt-16").ID("main").
+		app.Div().Class("pt-16 h-full").ID("main").
 			Body(
 				// sidebar
 				app.Div().Class("bg-gray-600 relative h-full").

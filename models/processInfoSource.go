@@ -34,8 +34,7 @@ func (ps *ProcessInfoSource) Start() {
 	//start sending events
 
 	rand.Seed(time.Now().UnixNano())
-
-	fmt.Println("ProcessInfoSource >> start")
+	//fmt.Println("ProcessInfoSource >> start")
 
 	// start a ticker:
 	ps.ticker = time.NewTicker(1000 * time.Millisecond)
@@ -117,7 +116,5 @@ func (ps *ProcessInfoSource) SendUpdate() {
 		}
 
 		ps.eb.Publish("PI", x)
-		//ps.eventId++
-		//fmt.Println("PS >>", x)
 	}
 }
