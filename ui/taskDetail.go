@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	models "github.com/clydotron/go-app-test/model"
+	"github.com/clydotron/go-app-test/models"
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
 )
 
@@ -74,7 +74,7 @@ func (c *TaskDetail) OnNav(ctx app.Context, url *url.URL) {
 // 	fmt.Println("TaskDetail mounted")
 // }
 
-func (c *TaskDetail) OnDismount(ctx app.Context) {
+func (c *TaskDetail) OnDismount() {
 	fmt.Println("TaskDetail - OnDismount")
 	c.TI.RemoveObserver(c)
 }

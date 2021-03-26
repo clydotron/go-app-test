@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	models "github.com/clydotron/go-app-test/model"
+	"github.com/clydotron/go-app-test/models"
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
 )
 
@@ -93,8 +93,8 @@ func (c *Machine) OnMount(ctx app.Context) {
 	c.visited = true
 }
 
-func (c *Machine) OnDismount(ctx app.Context) {
-	fmt.Println("machine dismounted")
+func (c *Machine) OnDismount() {
+	defer fmt.Println("machine dismounted")
 
 	c.ticker.Stop()
 	c.doneCh <- true

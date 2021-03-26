@@ -83,3 +83,9 @@ type ClusterInfo struct {
 	ControlPlanes map[string]ControlPlaneInfo
 	WorkerNodes   map[string]WorkerNodeInfo
 }
+
+type ProcessInfo struct {
+	Name string
+	ID   string
+	CPU  int
+}

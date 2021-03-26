@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	models "github.com/clydotron/go-app-test/model"
+	"github.com/clydotron/go-app-test/models"
 	"github.com/clydotron/go-app-test/ui"
 	"github.com/clydotron/go-app-test/utils"
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
@@ -92,15 +92,15 @@ func (c *Clusters) OnMount(ctx app.Context) {
 				case d := <-c.dataCh:
 					c.handleEvent(d)
 				case <-c.doneCh:
-					fmt.Println("all done!")
+					fmt.Println("Cluster: all done!")
 					return
 				}
 			}
 		}()
 	}
 }
-func (c *Clusters) OnDismount(ctx app.Context) {
-	fmt.Println("Events dismounted")
+func (c *Clusters) OnDismount() {
+	defer fmt.Println("Clusters dismounted")
 
 	c.doneCh <- true
 	c.eb.Unsubscribe("cluster", c.dataCh)

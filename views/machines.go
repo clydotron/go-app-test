@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	models "github.com/clydotron/go-app-test/model"
+	"github.com/clydotron/go-app-test/models"
 	"github.com/clydotron/go-app-test/ui"
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
 )
