@@ -24,7 +24,7 @@ func NewClusterClient() *ClusterClient {
 
 func (cc *ClusterClient) Connect(server string) error {
 
-	fmt.Println("ClusterClient Connecting")
+	fmt.Println("ClusterClient Connecting...")
 	conn, err := grpc.Dial(server, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println("Failed to dial:", err) //pick one or the other (log fatal or return err)

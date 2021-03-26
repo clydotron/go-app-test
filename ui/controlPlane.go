@@ -1,7 +1,7 @@
 package ui
 
 import (
-	models "github.com/clydotron/go-app-test/model"
+	"github.com/clydotron/go-app-test/models"
 	"github.com/maxence-charriere/go-app/v7/pkg/app"
 )
 
